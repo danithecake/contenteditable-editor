@@ -1,0 +1,10 @@
+.VariableNode {
+  background-color: deepskyblue;
+  border-radius: 4px;
+  color: white;
+  display: inline-flex;
+  margin-left: 2px;
+  margin-right: 2px;
+  padding: 5px;
+  vertical-align: middle;
+}

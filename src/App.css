@@ -1,0 +1,23 @@
+.App {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: space-between;
+  padding: 10px 5px;
+}
+
+.App-col {
+  flex: 1;
+  margin-left: 5px;
+  margin-right: 5px;
+  min-width: 300px;
+}
+
+.Editor-preview {
+  border: 4px solid lightgreen;
+  flex: 1;
+  height: 200px;
+  padding: 5px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}

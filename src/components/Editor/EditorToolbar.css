@@ -1,0 +1,16 @@
+.EditorToolbar {
+  display: flex;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  justify-content: center;
+}
+
+.EditorToolbar-button {
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  font-size: 24px;
+  margin-right: 5px;
+  padding: 5px 10px;
+  text-align: center;
+}

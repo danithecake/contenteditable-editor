@@ -1,0 +1,10 @@
+.MentionNode {
+  background-color: aliceblue;
+  color: cornflowerblue;
+  display: inline-block;
+  margin-left: 2px;
+  margin-right: 2px;
+  padding: 2px;
+  text-decoration: none;
+  vertical-align: middle;
+}
