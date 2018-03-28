@@ -21,3 +21,7 @@
   white-space: pre-wrap;
   overflow-y: auto;
 }
+
+.Editor-selection-context {
+  text-align: center;
+}

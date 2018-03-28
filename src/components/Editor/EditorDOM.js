@@ -2,10 +2,45 @@ import ReactDOM from 'react-dom'
 import { NODE_TYPES } from './Nodes'
 
 class EditorDOM {
-  static render(component) {
+  static deserializers = {
+    [NODE_TYPES.emoji]: node => node.firstChild.getAttribute('alt'),
+    [NODE_TYPES.variable]: (node) => {
+      const content = node.firstChild
+      let result = `{{${content.getAttribute('data-name')}`
+
+      result += `${content.hasAttribute('data-value') ? `|${content.getAttribute('data-value')}` : ''}}}`
+
+      return result
+    },
+    [NODE_TYPES.mention]: node => `<${node.firstChild.innerText}>`,
+  }
+
+  static findContainerNode(nodes) {
+    let container = null
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.hasAttribute('data-nodetype')) {
+          container = node
+          break
+        }
+
+        if (node.parentNode.hasAttribute('data-nodetype')) {
+          container = node.parentNode
+          break
+        }
+      }
+    }
+
+    return container
+  }
+
+  static render(component, nodeType) {
     const container = document.createElement('span')
 
-    // container.className = 'NodeContainer'
+    container.setAttribute('data-nodetype', nodeType)
 
     ReactDOM.render(component, container)
 
@@ -27,20 +62,10 @@ class EditorDOM {
     }
 
     if (node.nodeType === Node.ELEMENT_NODE) {
-      switch (parseInt(node.getAttribute('data-nodetype'), 10)) {
-        case NODE_TYPES.emoji:
-          result += node.getAttribute('alt')
-          break
-        case NODE_TYPES.variable:
-          result += `{{${node.getAttribute('data-name')}`
-          result += `${node.hasAttribute('data-value') ? `|${node.getAttribute('data-value')}` : ''}}}`
-          break
-        case NODE_TYPES.mention:
-          result += node.innerText
-          break
-        default:
-          result += `${node.tagName === 'DIV' ? '\n' : ''}${EditorDOM.domToString(node.childNodes, 0)}`
-          break
+      if (node.hasAttribute('data-nodetype')) {
+        result += EditorDOM.deserializers[parseInt(node.getAttribute('data-nodetype'), 10)](node)
+      } else {
+        result += `${node.tagName === 'DIV' ? '\n' : ''}${EditorDOM.domToString(node.childNodes, 0)}`
       }
     }
 

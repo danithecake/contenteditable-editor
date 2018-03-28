@@ -9,7 +9,6 @@ export default class EditorToolbar extends PureComponent {
 
   insertHandlers = {
     [NODE_TYPES.emoji]: () => {
-      console.log('emoji')
       this.props.onInsertNode(NODE_TYPES.emoji, '😀')
     },
     [NODE_TYPES.variable]: () => {

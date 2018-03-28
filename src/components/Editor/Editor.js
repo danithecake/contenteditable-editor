@@ -6,7 +6,16 @@ import './Editor.css'
 
 export default class Editor extends Component {
   static defaultProps = {
-    onInput() {}
+    onInput() {},
+    onSelectionChange() {},
+  }
+
+  componentDidMount() {
+    document.onselectionchange = this.handleSelectionChange
+  }
+
+  componentWillUnmount() {
+    document.onselectionchange = null
   }
 
   editorRef = null
@@ -22,7 +31,7 @@ export default class Editor extends Component {
   insertNode = (nodeType, ...args) => {
     this.editorRef.focus()
 
-    const node = EditorDOM.render(this.insertTypes[nodeType](...args))
+    const node = EditorDOM.render(this.insertTypes[nodeType](...args), nodeType)
     const range = window.getSelection().getRangeAt(0)
     const spaceAfter = document.createTextNode('\u00A0')
 
@@ -44,11 +53,50 @@ export default class Editor extends Component {
     this.props.onInput(EditorDOM.domToString(this.editorRef.childNodes, 0))
   }
 
+  nodeNames = {
+    [NODE_TYPES.emoji]: 'Emoji',
+    [NODE_TYPES.variable]: 'Variable',
+    [NODE_TYPES.mention]: 'Mention',
+  }
+
+  getSelectionContext = (selection) => {
+    const { anchorNode, anchorOffset: position } = selection
+    let node = EditorDOM.findContainerNode([anchorNode, anchorNode.parentNode])
+    let name = ''
+    let content = ''
+
+    if (node != null) {
+      const nodeType = parseInt(node.getAttribute('data-nodetype'), 10)
+
+      name = this.nodeNames[nodeType]
+      content = EditorDOM.deserializers[nodeType](node)
+    } else {
+      name = 'Text'
+      content = anchorNode.wholeText
+    }
+
+    return { node: name, content, position }
+  }
+
   handleInputTimeout = null
 
   handleInput = () => {
     clearTimeout(this.handleInputTimeout)
     this.handleInputTimeout = setTimeout(this.domToString, 500)
+  }
+
+  handleSelectionChange = () => {
+    this.props.onSelectionChange(this.getSelectionContext(window.getSelection()))
+  }
+
+  handleFocus = (e) => {
+    document.onselectionchange = this.handleSelectionChange
+  }
+
+  handleBlur = (e) => {
+    document.onselectionchange = null
+
+    this.props.onSelectionChange({ node: 'N/A', content: '', position: 'N/A' })
   }
 
   render() {
@@ -59,6 +107,8 @@ export default class Editor extends Component {
           className="Editor-input"
           contentEditable
           onInput={this.handleInput}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
           suppressContentEditableWarning
         />
         <EditorToolbar onInsertNode={this.insertNode} />
